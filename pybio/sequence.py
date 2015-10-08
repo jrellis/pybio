@@ -64,9 +64,9 @@ class Sequence(object):
         self._alphabet = list(alphabet)
 
     def _init_from_str(self, sequence, alphabet):
-        self._alphabet = list(alphabet)
+        self._alphabet = list(alphabet) if alphabet else list(set(sequence))
         self._validate_str_sequence(sequence, self._alphabet)
-        inverse_alphabet = {letter:value for value,letter in enumerate(alphabet)}
+        inverse_alphabet = {letter:value for value,letter in enumerate(self._alphabet)}
         self._sequence = np.array([inverse_alphabet[letter] for letter in sequence], dtype=np.int8)
 
     def _init_from_sequence(self, sequence, alphabet):
@@ -104,7 +104,6 @@ class Sequence(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-#TODO: modify sw to work with the Sequence
 class DnaSequence(Sequence):
     """
     A DNA sequence.
@@ -129,8 +128,8 @@ class DnaSequence(Sequence):
 
     def complement(self):
         """Returns the complement of the sequence."""
-        complement_alphabet = _convert_alphabet(self._alphabet, DnaSequence._complement)
-        return DnaSequence._from_ndarray(self._sequence, complement_alphabet)
+        complement_sequence = _convert_sequence(self._sequence, self._alphabet, self._complement)
+        return DnaSequence._from_ndarray(complement_sequence, self._alphabet)
 
     def reverse_complement(self):
         """Returns the reverse complement of the sequence."""
@@ -181,8 +180,8 @@ class RnaSequence(Sequence):
 
     def complement(self):
         """Returns the complement of the sequence."""
-        complement_alphabet = _convert_alphabet(self._alphabet, RnaSequence._complement)
-        return RnaSequence._from_ndarray(self._sequence, complement_alphabet)
+        complement_sequence = _convert_sequence(self._sequence, self._alphabet, self._complement)
+        return RnaSequence._from_ndarray(complement_sequence, self._alphabet)
 
     def reverse_complement(self):
         """Returns the reverse complement of the sequence."""
@@ -190,6 +189,7 @@ class RnaSequence(Sequence):
 
     def translate(self):
         """Returns the translated protein sequence, up to the first stop codon"""
+        #TODO: Use Numba and test speed
         offset = len(self._sequence) % 3
         if offset % 3 != 0:
             logger.warning('The length of this sequence is not a multiple of three...')
@@ -210,7 +210,7 @@ class ProteinSequence(Sequence):
     """
     A protein sequence.
     """
-    _protein_alphabet = 'ARNDCQEGHILKMFPSTWYVX'
+    _protein_alphabet = 'ARNDCQEGHILKMFPSTWYVX*'
 
     def __init__(self, sequence):
         """
@@ -220,6 +220,12 @@ class ProteinSequence(Sequence):
             the characters in the protein sequence, must be in the protein amino acid alphabet
         """
         super(ProteinSequence, self).__init__(sequence, ProteinSequence._protein_alphabet)
+
+def _convert_sequence(sequence, alphabet, conversion):
+    #TODO: Documentation and Numba
+    letter_to_index = {letter:index for index, letter in enumerate(alphabet)}
+    index_list = np.array([letter_to_index[conversion[letter]] if letter in conversion else letter_to_index[letter] for letter in alphabet], dtype=np.int8)
+    return index_list[sequence]
 
 def _convert_alphabet(alphabet, conversion):
     """

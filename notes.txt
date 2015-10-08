@@ -1,0 +1,8 @@
+TODO:
+Sequence from fasta
+Allow input from fasta
+Remove output text from C code
+Clean up cython build
+Multiple alignment
+Installed libraries
+
