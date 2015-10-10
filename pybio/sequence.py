@@ -13,7 +13,7 @@ class Sequence(object):
     """
     A biological sequence.
     """ 
-    def __init__(self, sequence, alphabet=None):
+    def __init__(self, sequence, alphabet=None, identifier=None, description=None):
         """
         Parameters
         ----------
@@ -21,7 +21,13 @@ class Sequence(object):
             string with the characters in the Sequence
         alphabet : list of chars, default None
             the characters in this Sequence
+        identifier : str
+            identifies the sequence
+        description : str
+            a description of the sequence
         """
+        self.identifier = identifier
+        self.description = description
         self._max_output_chars = 40
         
         initializers = {
