@@ -1,5 +1,7 @@
 """ Functions for performing Smith-Waterman """
 
+#from __future__ import print_function
+
 cimport numpy as cnp
 cimport ssw
 from collections import namedtuple
@@ -116,12 +118,14 @@ def _smith_waterman(query, target, cnp.ndarray match_matrix, cnp.uint8_t gap_ope
     cdef cnp.ndarray[cnp.int8_t, ndim = 1, mode = "c"] matrix = match_matrix.flatten()
 
     cdef cnp.uint8_t bit_flag = 0
-    if score_filter != 0:
-        bit_flag = bit_flag | 0x2
-    if distance_filter != 0:
-        bit_flag = bit_flag | 0x4
-    if bit_flag == 0 or bit_flag == 8:
-        bit_flag = bit_flag | 0x1
+    bit_flag = bit_flag | 0x2
+
+    #if score_filter != 0:
+    #    bit_flag = bit_flag | 0x2
+    #if distance_filter != 0:
+    #    bit_flag = bit_flag | 0x4
+    #if bit_flag == 0 or bit_flag == 8:
+    #    bit_flag = bit_flag | 0x1
 
     cdef cnp.uint32_t mask_length = max(len(query_sequence)/2, 15)
 
@@ -129,7 +133,10 @@ def _smith_waterman(query, target, cnp.ndarray match_matrix, cnp.uint8_t gap_ope
     cdef ssw.s_align* align = ssw.ssw_align(profile, <cnp.int8_t*> target_sequence.data, len(target_sequence), gap_open_penalty, gap_extend_penalty, bit_flag, score_filter, distance_filter, mask_length)
 
     cigar = get_cigar(align)
-    alignment = Alignment(query, target, cigar, align.ref_begin1, align.read_begin1)
+
+    print 'score1', align.score1, 'score2', align.score2, 'ref_begin', align.ref_begin1, 'ref_end1', align.ref_end1, 'read_begin', align.read_begin1, 'read_end1', align.read_end1, 'ref_end2', align.ref_end2
+
+    alignment = Alignment(query, target, align.score1, align.score2, cigar, align.ref_begin1, align.ref_end1, align.read_begin1, align.read_end1)
 
     ssw.init_destroy(profile)
     ssw.align_destroy(align)

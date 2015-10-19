@@ -13,7 +13,7 @@ class Sequence(object):
     """
     A biological sequence.
     """ 
-    def __init__(self, sequence, alphabet=None, identifier=None, description=None):
+    def __init__(self, sequence, alphabet=None):
         """
         Parameters
         ----------
@@ -21,13 +21,9 @@ class Sequence(object):
             string with the characters in the Sequence
         alphabet : list of chars, default None
             the characters in this Sequence
-        identifier : str
-            identifies the sequence
-        description : str
-            a description of the sequence
         """
-        self.identifier = identifier
-        self.description = description
+        self.identifier = None
+        self.description = None
         self._max_output_chars = 40
         
         initializers = {
@@ -216,7 +212,7 @@ class ProteinSequence(Sequence):
     """
     A protein sequence.
     """
-    _protein_alphabet = 'ARNDCQEGHILKMFPSTWYVX*'
+    _protein_alphabet = 'ARNDCQEGHILKMFPSTWYVBZX*'
 
     def __init__(self, sequence):
         """
