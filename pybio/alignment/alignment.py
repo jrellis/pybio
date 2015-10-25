@@ -39,9 +39,10 @@ class Alignment(object):
         self.end_target = end_target
 
     def __str__(self):
+        identifier_str = "target: {target}\nquery: {query}\n".format(target=self.target.identifier, query=self.query.identifier) if self.target.identifier or self.query.identifier else ""
         query_str = self._get_alignment_str(self.query, self.cigar, self.begin_query, self.begin_query - self.begin_target, 'D')
         target_str = self._get_alignment_str(self.target, self.cigar, self.begin_target, self.begin_target - self.begin_query, 'I')
-        return "\n".join([target_str, query_str])
+        return "\n".join([identifier_str, target_str, query_str])
     
     def __repr__(self):
         return self.__class__.__name__ + '\n' + self.__str__()
