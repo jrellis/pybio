@@ -5,6 +5,7 @@ import logging
 import types
 import numpy as np
 from itertools import izip_longest
+from pybio.parse import Fasta, Fastq
 
 __all__ = ['Sequence', 'DnaSequence', 'RnaSequence', 'ProteinSequence']
 logger = logging.getLogger(__name__)
@@ -47,6 +48,51 @@ class Sequence(object):
         sequence._sequence = array
         sequence._alphabet = alphabet
         return sequence
+
+    @classmethod
+    def from_fasta(cls, fasta):
+        """
+        Returns a sequence from a fasta file or a Fasta object.
+
+        Parameters
+        ----------
+        fasta : str or Fasta
+            a fasta file or a pybio.parse.Fasta object
+        """
+        if isinstance(fasta, Fasta):
+            return cls._from_fasta(fasta)
+        else:
+            return cls._from_fasta(Fasta.parse_iterator(fasta).next())
+
+    @classmethod
+    def from_fastq(cls, fastq):
+        """
+        Returns a sequence from a fastq file or a Fastq object.
+
+        Parameters
+        ----------
+        fastq : str of Fastq
+            a fasta file or a pybio.parse.Fastq object
+        """
+        if isinstance(fastq, Fastq):
+            return cls._from_fastq(fastq)
+        else:
+            return cls._from_fastq(Fastq.parse_iterator(fastq).next())
+
+    @classmethod
+    def _from_fasta(cls, fasta):
+        seq = cls(fasta.sequence)
+        seq.identifier = fasta.identifier
+        seq.description = fasta.description
+        return seq
+
+    @classmethod
+    def _from_fastq(cls, fastq):
+        seq = cls(fastq.sequence)
+        seq.identifier = fastq.identifier
+        seq.description = fastq.description
+        seq.quality_scores = fastq.quality_scores
+        return seq
 
     @property
     def alphabet(self):
