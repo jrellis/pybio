@@ -50,6 +50,19 @@ class Sequence(object):
         return sequence
 
     @classmethod
+    def sequences_from_fasta(cls, fasta_file):
+        """
+        Returns an iterator of sequences from a fasta file.
+
+        Parameters
+        ----------
+        fasta_file : str
+            name of a fasta file
+        """
+        for fasta in Fasta.parse_iterator(fasta_file):
+            yield cls._from_fasta(fasta)
+
+    @classmethod
     def from_fasta(cls, fasta):
         """
         Returns a sequence from a fasta file or a Fasta object.
@@ -63,6 +76,19 @@ class Sequence(object):
             return cls._from_fasta(fasta)
         else:
             return cls._from_fasta(Fasta.parse_iterator(fasta).next())
+
+    @classmethod
+    def sequences_from_fastq(cls, fastq_file):
+        """
+        Returns an iterator of sequences from a fastq file.
+
+        Parameters
+        ----------
+        fastq_file : str
+            name of a fastq file
+        """
+        for fastq in Fastq.parse_iterator(fastq_file):
+            yield cls._from_fastq(fastq)
 
     @classmethod
     def from_fastq(cls, fastq):
@@ -270,6 +296,10 @@ class ProteinSequence(Sequence):
         super(ProteinSequence, self).__init__(sequence, ProteinSequence._protein_alphabet)
 
 def _convert_sequence(sequence, alphabet, conversion):
+    """
+    Convert a sequence, stored a np.array of type int8, with a corresponding alphabet, using 
+    the a conversion table keyed to the alphabet.
+    """
     #TODO: Documentation and Numba
     letter_to_index = {letter:index for index, letter in enumerate(alphabet)}
     index_list = np.array([letter_to_index[conversion[letter]] if letter in conversion else letter_to_index[letter] for letter in alphabet], dtype=np.int8)
@@ -289,6 +319,6 @@ def _convert_alphabet(alphabet, conversion):
     return [conversion[letter] if letter in conversion else letter for letter in alphabet]
 
 def _grouper(iterable, n, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks, from the itertools recipe book"
+    """Collect data into fixed-length chunks or blocks, from the itertools recipe book"""
     args = [iter(iterable)] * n
     return izip_longest(fillvalue=fillvalue, *args)

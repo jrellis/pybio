@@ -1,8 +1,8 @@
 TODO:
-Sequence from fasta
-Allow input from fasta
-Remove output text from C code
-Clean up cython build
-Multiple alignment
+Multiple alignment - Clustal Omega, Muscle
+Pairwise alignment against a file.
 Installed libraries
-
+Reverse transcription
+Clustal file format
+Refactor from_fasta, from_fastq - have the files return by matching an identifier
+Add iterator_from_fasta, iterator_from_fastq - also allow matching an identifer on a glob or regex
