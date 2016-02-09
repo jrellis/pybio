@@ -134,7 +134,7 @@ def _smith_waterman(query, target, cnp.ndarray match_matrix, cnp.uint8_t gap_ope
 
     cigar = get_cigar(align)
 
-    alignment = Alignment(query, target, align.score1, align.score2, cigar, align.ref_begin1, align.ref_end1, align.read_begin1, align.read_end1)
+    alignment = Alignment(query, target, align.score1, align.score2, cigar, align.read_begin1, align.read_end1, align.ref_begin1, align.ref_end1)
 
     ssw.init_destroy(profile)
     ssw.align_destroy(align)

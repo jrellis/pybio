@@ -2015,7 +2015,7 @@ static PyObject *__pyx_pf_5pybio_9alignment_14smith_waterman_2_smith_waterman(CY
  * 
  *     cigar = get_cigar(align)             # <<<<<<<<<<<<<<
  * 
- *     alignment = Alignment(query, target, align.score1, align.score2, cigar, align.ref_begin1, align.ref_end1, align.read_begin1, align.read_end1)
+ *     alignment = Alignment(query, target, align.score1, align.score2, cigar, align.read_begin1, align.read_end1, align.ref_begin1, align.ref_end1)
  */
   __pyx_t_1 = __pyx_f_5pybio_9alignment_14smith_waterman_get_cigar(__pyx_v_align); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 135; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
@@ -2025,7 +2025,7 @@ static PyObject *__pyx_pf_5pybio_9alignment_14smith_waterman_2_smith_waterman(CY
   /* "pybio/alignment/smith_waterman.pyx":137
  *     cigar = get_cigar(align)
  * 
- *     alignment = Alignment(query, target, align.score1, align.score2, cigar, align.ref_begin1, align.ref_end1, align.read_begin1, align.read_end1)             # <<<<<<<<<<<<<<
+ *     alignment = Alignment(query, target, align.score1, align.score2, cigar, align.read_begin1, align.read_end1, align.ref_begin1, align.ref_end1)             # <<<<<<<<<<<<<<
  * 
  *     ssw.init_destroy(profile)
  */
@@ -2035,13 +2035,13 @@ static PyObject *__pyx_pf_5pybio_9alignment_14smith_waterman_2_smith_waterman(CY
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_10 = __Pyx_PyInt_From_npy_uint16(__pyx_v_align->score2); if (unlikely(!__pyx_t_10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_11 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->ref_begin1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_11 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->read_begin1); if (unlikely(!__pyx_t_11)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_12 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->ref_end1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_12 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->read_end1); if (unlikely(!__pyx_t_12)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_12);
-  __pyx_t_13 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->read_begin1); if (unlikely(!__pyx_t_13)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_13 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->ref_begin1); if (unlikely(!__pyx_t_13)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_14 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->read_end1); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_14 = __Pyx_PyInt_From_npy_int32(__pyx_v_align->ref_end1); if (unlikely(!__pyx_t_14)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 137; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_14);
   __pyx_t_15 = NULL;
   __pyx_t_9 = 0;
@@ -2095,7 +2095,7 @@ static PyObject *__pyx_pf_5pybio_9alignment_14smith_waterman_2_smith_waterman(CY
   __pyx_t_1 = 0;
 
   /* "pybio/alignment/smith_waterman.pyx":139
- *     alignment = Alignment(query, target, align.score1, align.score2, cigar, align.ref_begin1, align.ref_end1, align.read_begin1, align.read_end1)
+ *     alignment = Alignment(query, target, align.score1, align.score2, cigar, align.read_begin1, align.read_end1, align.ref_begin1, align.ref_end1)
  * 
  *     ssw.init_destroy(profile)             # <<<<<<<<<<<<<<
  *     ssw.align_destroy(align)

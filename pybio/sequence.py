@@ -4,7 +4,7 @@ from __future__ import print_function
 import logging
 import types
 import numpy as np
-from itertools import izip_longest
+from itertools import izip_longest, islice
 from pybio.parse import Fasta, Fastq
 
 __all__ = ['Sequence', 'DnaSequence', 'RnaSequence', 'ProteinSequence']
@@ -63,7 +63,7 @@ class Sequence(object):
             yield cls._from_fasta(fasta)
 
     @classmethod
-    def from_fasta(cls, fasta):
+    def from_fasta(cls, fasta, num=0, description=None):
         """
         Returns a sequence from a fasta file or a Fasta object.
 
@@ -71,14 +71,19 @@ class Sequence(object):
         ----------
         fasta : str or Fasta
             a fasta file or a pybio.parse.Fasta object
+        num : int
+            return the numth sequence from a file
+        description : string
+            return a sequence whose description line matches this
+            description; accepts shell-style wild cards
         """
         if isinstance(fasta, Fasta):
             return cls._from_fasta(fasta)
         else:
-            return cls._from_fasta(Fasta.parse_iterator(fasta).next())
+            return cls._from_fasta(next(islice(Fasta.parse_iterator(fasta, description), num, None)))
 
     @classmethod
-    def sequences_from_fastq(cls, fastq_file):
+    def sequences_from_fastq(cls, fastq_file, description=None):
         """
         Returns an iterator of sequences from a fastq file.
 
@@ -86,12 +91,15 @@ class Sequence(object):
         ----------
         fastq_file : str
             name of a fastq file
+        description : str
+            return only sequences whose description line matches this
+            description; accepts shell-style wild cards
         """
-        for fastq in Fastq.parse_iterator(fastq_file):
+        for fastq in Fastq.parse_iterator(fastq_file, description):
             yield cls._from_fastq(fastq)
 
     @classmethod
-    def from_fastq(cls, fastq):
+    def from_fastq(cls, fastq, num=0, description=None):
         """
         Returns a sequence from a fastq file or a Fastq object.
 
@@ -99,11 +107,16 @@ class Sequence(object):
         ----------
         fastq : str of Fastq
             a fasta file or a pybio.parse.Fastq object
+        num : int
+            return the numth sequence from a file
+        description : string
+            return a sequence whose description line matches this
+            description; accepts shell-style wild cards
         """
         if isinstance(fastq, Fastq):
             return cls._from_fastq(fastq)
         else:
-            return cls._from_fastq(Fastq.parse_iterator(fastq).next())
+            return cls._from_fastq(next(islice(Fastq.parse_iterator(fastq, description), num, None)))
 
     @classmethod
     def _from_fasta(cls, fasta):

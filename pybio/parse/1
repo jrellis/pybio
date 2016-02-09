@@ -44,14 +44,6 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
         
     @classmethod
     def parse_string(cls, fasta_str):
-        """
-        Parse a FASTA format string into a Fasta object.
-
-        Parameters
-        ----------
-        fasta_str : int
-            a string in the form of a FASTA entry
-        """
         if not fasta_str.startswith('>'):
             raise ValueError('Entry is not in FASTA format.')
         description_line, sequence = fasta_str.split('\n', 1)
@@ -78,23 +70,12 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
 
     @classmethod
     def parse_iterator(cls, fasta_file, description=None):
-        """
-        Return an iterator over a fasta file.
-
-        Parameters
-        ----------
-        fasta_file : str
-            a fasta filename
-        description : str
-            return only entries whose description line matches
-        """
         if description:
-            for fasta in cls._parse_iterator_no_description(fasta_file):
+            for fasta in cls.parse_iterator_no_description(fasta_file):
                 if fnmatch(fasta.identifier + fasta.description, description):
                     yield fasta
         else:
-            for fasta in cls._parse_iterator_no_description(fasta_file):
-                yield fasta
+            yield cls._parse_iterator_no_description(fasta_file)
     
 class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quality_scores'])):
     """
@@ -129,21 +110,13 @@ class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quali
             return None, None
     
     @classmethod
-    def _parse_entry(cls, entry):
+    def parse_entry(cls, entry):
         description_line, sequence, optional_description_line, quality_scores = entry
         identifier, description, = cls._parse_description_line(description_line)
         return cls(identifier, description, sequence.strip(), quality_scores.strip())
 
     @classmethod
     def parse_string(cls, fastq_str):
-        """
-        Parse a FASTQ format string into a Fastq object.
-
-        Parameters
-        ----------
-        fastq_str : int
-            a string in the form of a FASTQ entry
-        """
         if not fastq_str.startswith('@'):
             raise ValueError('Entry is not in FASTQ format.')
         description_line, sequence, optional_description_line, quality_scores = fastq_str.split('\n', 3)
@@ -152,22 +125,12 @@ class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quali
 
     @classmethod
     def parse_iterator(cls, fastq_file, description=None):
-        """
-        Return an iterator over a fastq file.
-
-        Parameters
-        ----------
-        fastq_file : str
-            a fastq filename
-        description : str
-            return only entries whose description line matches
-        """
         with open(fastq_file, 'r') as fastq:
             if description:
                 for entry in grouper(fastq, 4):
                     if fnmatch(entry[0][1:], description):
-                        yield cls._parse_entry(entry)
+                        yield cls.parse_entry(entry)
             else:
                 for entry in grouper(fastq, 4):
-                    yield cls._parse_entry(entry)
+                    yield cls.parse_entry(entry)
 
