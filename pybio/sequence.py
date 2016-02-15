@@ -3,6 +3,7 @@
 from __future__ import print_function
 import logging
 import types
+import sys
 import numpy as np
 from itertools import izip_longest, islice
 from pybio.parse import Fasta, Fastq
@@ -80,7 +81,10 @@ class Sequence(object):
         if isinstance(fasta, Fasta):
             return cls._from_fasta(fasta)
         else:
-            return cls._from_fasta(next(islice(Fasta.parse_iterator(fasta, description), num, None)))
+            try:
+                return cls._from_fasta(next(islice(Fasta.parse_iterator(fasta, description), num, None)))
+            except StopIteration:
+                raise StopIteration, StopIteration('Entry {num} is not in the FASTA'.format(**locals())), sys.exc_info()[2]
 
     @classmethod
     def sequences_from_fastq(cls, fastq_file, description=None):
@@ -116,8 +120,11 @@ class Sequence(object):
         if isinstance(fastq, Fastq):
             return cls._from_fastq(fastq)
         else:
-            return cls._from_fastq(next(islice(Fastq.parse_iterator(fastq, description), num, None)))
-
+            try:
+                return cls._from_fastq(next(islice(Fastq.parse_iterator(fastq, description), num, None)))
+            except StopIteration:
+                raise StopIteration, StopIteration('Entry {num} is not in the FASTQ'.format(**locals())), sys.exc_info()[2]
+                
     @classmethod
     def _from_fasta(cls, fasta):
         seq = cls(fasta.sequence)
@@ -146,6 +153,52 @@ class Sequence(object):
         """Returns the sequence as a string."""
         return ''.join(self.to_list())
 
+    def to_fasta(self):
+        """Returns the Sequence as a Fasta object."""
+        return Fasta(self.identifier, self.description, self.to_string())
+
+    def to_fastq(self):
+        """Returns the Sequence as a Fastq object."""
+        return Fastq(self.identifier, self.description, self.to_string(), self.quality_scores)
+
+    def _write_string_representation(self, string_representation, file_extension='txt', file_handle=None, overwrite=None):
+        mode = 'w' if (not file_handle and (overwrite is None)) or overwrite else 'a'
+        if not file_handle:
+            file_handle = (self.identifier if self.identifier else 'seq') + '.' + file_extension
+        if isinstance(file_handle, basestring):
+            with open(file_handle, mode) as file:
+                self.write_fasta(file)
+        else:
+            file_handle.write(string_representation + '\n')
+
+    def write_fasta(self, file_handle=None, overwrite=None):
+        """
+        Write a FASTA format entry for this Sequence to the file_handle.
+    
+        Parameters
+        ----------
+        file_handle
+            write to this file handle or file name
+        overwrite : bool
+            if True, overwrite the file; if False, append to the file.
+            if None (default) append unless file_handle and overwrite are both None. 
+        """
+        self._write_string_representation(self.to_fasta().to_string(), 'fasta', file_handle, overwrite)
+
+    def write_fastq(self, file_handle=None, overwrite=None):
+        """
+        Write a FASTQ format entry for this Sequence to the file_handle.
+    
+        Parameters
+        ----------
+        file_handle
+            write to this file handle or file name
+        overwrite : bool
+            if True, overwrite the file; if False, append to the file.
+            if None (default) append unless file_handle and overwrite are both None. 
+        """
+        self._write_string_representation(self.to_fastq().to_string(), 'fastq', file_handle, overwrite)
+        
     def _init_empty(self, sequence, alphabet):
         self._sequence = None
         self._alphabet = list(alphabet)

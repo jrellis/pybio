@@ -95,7 +95,15 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
         else:
             for fasta in cls._parse_iterator_no_description(fasta_file):
                 yield fasta
-    
+   
+    def to_string(self):
+        """
+        Return the object as a FASTA formatted entry.
+        """
+        description_line = self.identifier + ' ' + self.description if self.description else self.identifier
+        sequence = '\n'.join([self.sequence[i:i+80] for i in range(0, len(self.sequence), 80)])
+        return '>{description_line}\n{sequence}'.format(description_line=description_line, sequence=sequence)
+
 class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quality_scores'])):
     """
     A representation of the data in a parsed FASTQ entry.
@@ -171,3 +179,9 @@ class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quali
                 for entry in grouper(fastq, 4):
                     yield cls._parse_entry(entry)
 
+    def to_string(self):
+        """
+        Return the object as a FASTQ formatted entry.
+        """
+        description_line = self.identifier + ' ' + self.description if self.description else self.identifier
+        return '@{description_line}\n{sequence}\n+\n{quality_scores}'.format(description_line=description_line, sequence=self.sequence, quality_scores=self.quality_scores)
