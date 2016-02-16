@@ -1,5 +1,5 @@
 from sequence import *
-import alignment, parse
+import alignment, parse, entrez
 import logging
 
 logging.getLogger('pybio').addHandler(logging.NullHandler())
