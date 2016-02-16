@@ -16,10 +16,12 @@ eutils_url_template='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/{eutil_tool}.
 
 def set_email(email):
     """Set the Entrez email to this email address."""
+    global default_email
     default_email = email
 
 def set_tool(tool):
     """Set the Entrez tool to this name."""
+    global default_tool 
     default_tool = tool
 
 def set_ncbi_delay(delay):
@@ -29,7 +31,17 @@ def set_ncbi_delay(delay):
     This is set to ensure that the maximum number of queries
     per second is not exceeded.
     """
+    global ncbi_delay 
     ncbi_delay = delay
+
+def _add_email_and_tool(kwargs):
+    if not 'email' in kwargs:
+        if not default_email:
+            logger.warning('No email set for Entrez. Please use pybio.entrez.set_email() to set an email address.')
+        else:
+            kwargs['email'] = default_email
+    if not 'tool' in kwargs:
+        kwargs['tool'] = default_tool
 
 def _ncbi_delay():
     time_since_last_call = time.time() - last_access_time
@@ -38,12 +50,14 @@ def _ncbi_delay():
 
 def _entrez_post(eutil_tool, **kwargs):
     _ncbi_delay()
+    _add_email_and_tool(kwargs)
     response = requests.post(eutils_url_template.format(**locals()), params=kwargs)
     last_access = time.time()
     return response
 
 def _entrez_get(eutil_tool, **kwargs):
     _ncbi_delay()
+    _add_email_and_tool(kwargs)
     response = requests.get(eutils_url_template.format(**locals()), params=kwargs)
     last_access = time.time()
     return response
