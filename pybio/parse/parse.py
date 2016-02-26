@@ -58,23 +58,32 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
         identifier, description = cls._parse_description_line(description_line)
         sequence = ''.join(sequence.split())
         return cls(identifier, description, sequence)
+    
+    @classmethod
+    def _parse_iterator_from_entry(cls, fasta):
+        sequence = ''
+        for line in fasta:
+            if not line.strip():
+                continue
+            if line.startswith('>'):
+                if sequence:
+                    yield Fasta(identifier, description, sequence)
+                sequence = ''
+                identifier, description = cls._parse_description_line(line)
+            else:
+                sequence += ''.join(line.split())
+        if sequence:
+            yield Fasta(identifier, description, sequence)
 
     @classmethod
     def _parse_iterator_no_description(cls, fasta_file):
-        with open(fasta_file, 'r') as fasta:
-            sequence = ''
-            for line in fasta:
-                if not line.strip():
-                    continue
-                if line.startswith('>'):
-                    if sequence:
-                        yield Fasta(identifier, description, sequence)
-                    sequence = ''
-                    identifier, description = cls._parse_description_line(line)
-                else:
-                    sequence += ''.join(line.split())
-            if sequence:
-                yield Fasta(identifier, description, sequence)
+        try:
+            with open(fasta_file, 'r') as fasta_entry:
+                for fasta in cls._parse_iterator_from_entry(fasta_entry):
+                    yield fasta
+        except IOError:
+            for fasta in cls._parse_iterator_from_entry(fasta_file.split('\n')):
+                yield fasta
 
     @classmethod
     def parse_iterator(cls, fasta_file, description=None):

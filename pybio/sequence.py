@@ -30,7 +30,7 @@ class Sequence(object):
         
         initializers = {
                 types.NoneType : self._init_empty,
-                str : self._init_from_str,
+                basestring : self._init_from_str,
                 list : self._init_from_str,
                 Sequence : self._init_from_sequence
                 }
