@@ -153,6 +153,11 @@ class Sequence(object):
         """Returns the sequence as a string."""
         return ''.join(self.to_list())
 
+    @property
+    def string(self):
+        """Get the sequence as a string."""
+        return self.to_string()
+
     def to_fasta(self):
         """Returns the Sequence as a Fasta object."""
         return Fasta(self.identifier, self.description, self.to_string())
@@ -201,7 +206,7 @@ class Sequence(object):
         
     def _init_empty(self, sequence, alphabet):
         self._sequence = None
-        self._alphabet = list(alphabet)
+        self._alphabet = list(alphabet) if alphabet else None
 
     def _init_from_str(self, sequence, alphabet):
         self._alphabet = list(alphabet) if alphabet else list(set(sequence))
