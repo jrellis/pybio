@@ -249,6 +249,10 @@ class Sequence(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __iter__(self):
+        for char in self._sequence.flat:
+            yield self._alphabet[char]
+
 class DnaSequence(Sequence):
     """
     A DNA sequence.
