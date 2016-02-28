@@ -3,7 +3,7 @@
 import logging
 import requests
 import time
-from threading import Thread
+import threading
 import Queue
 from xml.etree import cElementTree
 from pybio import ProteinSequence, DnaSequence
@@ -257,6 +257,8 @@ def get_entry(db, accession, return_type='fasta'):
     term = '{accession}[accession]'.format(**locals())
     return esearch_efetch(db=db, rettype=return_type, term=term)
 
+# Get Sequences from Entrez
+
 def get_nucleotide_sequence(accession):
     """
     Get an Entrez nucleotide entry by accession number.
@@ -312,10 +314,10 @@ def threaded_entrez_function_iter(entrez_function, db, rettype='fasta', max_coun
         def next_retmax(retstart):
             return max_per_call
 
-    def do_entrez_query():
+    def do_entrez_query(stop_event):
         try:
             retstart = 0
-            while not_completed(retstart):
+            while not_completed(retstart) and not stop_event.is_set():
                 retmax = next_retmax(retstart)
                 result = entrez_function(db, rettype=rettype, retmax=retmax, retstart=retstart, term=term)
                 if not result.ok or '<ERROR>' in result.text:
@@ -327,15 +329,19 @@ def threaded_entrez_function_iter(entrez_function, db, rettype='fasta', max_coun
         queue.put(None)
         return
     
-    thread = Thread(target=do_entrez_query)
+    thread_stop = threading.Event()
+    thread = threading.Thread(target=do_entrez_query, args=(thread_stop,))
     thread.daemon = True
     thread.start()
 
-    while True: 
-        result = queue.get()
-        if not result:
-            raise StopIteration()
-        yield result
+    try:
+        while True:
+            result = queue.get()
+            if not result:
+                raise StopIteration()
+            yield result
+    except KeyboardInterrupt:
+        thread_stop.set()
 
 def search_proteins(max_count=None, max_per_call=100, queue_size=3, **kwargs):
     """
