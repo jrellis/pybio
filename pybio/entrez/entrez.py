@@ -17,6 +17,7 @@ default_tool='pybio'
 last_access_time=0
 ncbi_delay=0.3334
 eutils_url_template='https://eutils.ncbi.nlm.nih.gov/entrez/eutils/{eutil_tool}.fcgi'
+ecitmatch_url_template='http://eutils.ncbi.nlm.nih.gov/entrez/eutils/{eutil_tool}.cgi'
 
 # Helper functions for Entrez
 
@@ -54,10 +55,10 @@ def _ncbi_delay():
     if time_since_last_call < ncbi_delay:
         time.sleep(time_since_last_call)
 
-def _entrez_post(eutil_tool, **kwargs):
+def _entrez_post(eutil_tool, template=eutils_url_template, **kwargs):
     _ncbi_delay()
     _add_email_and_tool(kwargs)
-    response = requests.post(eutils_url_template.format(**locals()), params=kwargs)
+    response = requests.post(template.format(**locals()), params=kwargs)
     last_access = time.time()
     return response
 
@@ -81,16 +82,6 @@ def einfo(**kwargs):
     Direct access to the Entrez EInfo utility
     
     Provides information on Entrez databases.
-
-    Parameters
-    ----------
-    db
-        the Entrez database. If not specified, a list of all valid
-        Entrez databases is returned.
-    version
-        the version of the EInfo XML returned
-    retmode
-        the format of the output: 'xml' or 'json'
     """
     return _entrez_get('einfo', **kwargs)
 
@@ -211,7 +202,7 @@ def ecitmatch(bdata, db='pubmed', rettype='xml', **kwargs):
     rettype
         Retrieval type. Only 'xml' is supported.
     """
-    return _entrez_post('ecitmatch', db=db, rettype=rettype, bdata=bdata, **kwargs)
+    return _entrez_post('ecitmatch', template=ecitmatch_url_template, db=db, rettype=rettype, bdata=bdata, **kwargs)
 
 # Entrez Pipelines
 
@@ -352,7 +343,7 @@ def search_proteins(max_count=None, max_per_call=100, queue_size=3, **kwargs):
 
     Parameters
     ----------
-    max
+    max_count
         maximum number of proteins returned
     max_per_call
         maximum number of entries returned per call to Entrez
@@ -438,7 +429,7 @@ def search_nucleotide_sequences(max_count=None, max_per_call=100, queue_size=3, 
 
     Parameters
     ----------
-    max
+    max_count
         maximum number of nucleotides returned
     max_per_call
         maximum number of entries returned per call to Entrez

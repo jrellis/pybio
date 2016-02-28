@@ -30,7 +30,7 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
     parse_string
         parses a Fasta object from a FASTA-format string
     parse_iterator
-        parses a FASTA file and returns an iterator of Fasta objects
+        parses a FASTA file or FASTA-format string and returns an iterator of Fasta objects
     """
     @staticmethod
     def _parse_description_line(description_line):
@@ -38,7 +38,7 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
         if len(description_line) is 2:
             return description_line
         elif description_line:
-            return description_line, None
+            return description_line[0], None
         else:
             return None, None
         
@@ -93,7 +93,7 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
         Parameters
         ----------
         fasta_file : str
-            a fasta filename
+            a FASTA filename or string in FASTA format
         description : str
             return only entries whose description line matches
         """
@@ -179,14 +179,17 @@ class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quali
         description : str
             return only entries whose description line matches
         """
-        with open(fastq_file, 'r') as fastq:
-            if description:
-                for entry in grouper(fastq, 4):
-                    if fnmatch(entry[0][1:], description):
+        try:
+            with open(fastq_file, 'r') as fastq:
+                if description:
+                    for entry in grouper(fastq, 4):
+                        if fnmatch(entry[0][1:], description):
+                            yield cls._parse_entry(entry)
+                else:
+                    for entry in grouper(fastq, 4):
                         yield cls._parse_entry(entry)
-            else:
-                for entry in grouper(fastq, 4):
-                    yield cls._parse_entry(entry)
+        except IOError:
+            pass
 
     def to_string(self):
         """

@@ -51,7 +51,7 @@ class Sequence(object):
         return sequence
 
     @classmethod
-    def sequences_from_fasta(cls, fasta_file):
+    def sequences_from_fasta(cls, fasta_file, description=None):
         """
         Returns an iterator of sequences from a fasta file.
 
@@ -59,8 +59,11 @@ class Sequence(object):
         ----------
         fasta_file : str
             name of a fasta file
+        description : str
+            return only sequences whose description line matches this
+            description; accepts shell-style wild cards
         """
-        for fasta in Fasta.parse_iterator(fasta_file):
+        for fasta in Fasta.parse_iterator(fasta_file, description):
             yield cls._from_fasta(fasta)
 
     @classmethod
