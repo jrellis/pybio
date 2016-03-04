@@ -53,7 +53,7 @@ def _add_email_and_tool(kwargs):
 def _ncbi_delay():
     time_since_last_call = time.time() - last_access_time
     if time_since_last_call < ncbi_delay:
-        time.sleep(time_since_last_call)
+        time.sleep(ncbi_delay - time_since_last_call)
 
 def _entrez_post(eutil_tool, template=eutils_url_template, **kwargs):
     _ncbi_delay()

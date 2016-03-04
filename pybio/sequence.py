@@ -156,6 +156,14 @@ class Sequence(object):
         """Returns the sequence as a string."""
         return ''.join(self.to_list())
 
+    def describe(self):
+        """Prints a description of the sequence"""
+        if self.identifier:
+            print(self.identifier)
+        if self.description:
+            print(self.description)
+        print(self)
+
     @property
     def string(self):
         """Get the sequence as a string."""
@@ -381,6 +389,7 @@ def _convert_sequence(sequence, alphabet, conversion):
     #TODO: Documentation and Numba
     letter_to_index = {letter:index for index, letter in enumerate(alphabet)}
     index_list = np.array([letter_to_index[conversion[letter]] if letter in conversion else letter_to_index[letter] for letter in alphabet], dtype=np.int8)
+    print(index_list)
     return index_list[sequence]
 
 def _convert_alphabet(alphabet, conversion):
