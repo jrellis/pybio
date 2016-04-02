@@ -2,10 +2,11 @@
 
 #from __future__ import print_function
 
+import os.path
 cimport numpy as cnp
 cimport ssw
 from collections import namedtuple
-from pybio import DnaSequence, RnaSequence, ProteinSequence
+from pybio import DnaSequence, RnaSequence, ProteinSequence, Sequence
 from matrix import blastn_default_matrix, blosum62
 from alignment import Alignment, CigarSegment, Cigar
 
@@ -25,7 +26,7 @@ def smith_waterman(query, target, **kwargs):
     ----------
     query : Sequence
         The query sequence.
-    target : Sequence
+    target : Sequence or file name
         The target sequence of matching type with the query Sequence.
     match_matrix : numpy array
         A square numpy array with dimensions equal to the size of the Sequence alphabet.
@@ -83,8 +84,23 @@ def smith_waterman(query, target, **kwargs):
     if smith_waterman_args['match_matrix'] is None:
         smith_waterman_args = cnp.identity(len(query.alphabet))
 
-    return _smith_waterman(query, target, **smith_waterman_args)
-    
+    if isinstance(target, Sequence):
+        return _smith_waterman(query, target, **smith_waterman_args)
+    elif os.path.isfile(target):
+        return _smith_waterman_over_file(query, target, **smith_waterman_args)
+
+    raise TypeError('The target "{target}" is not a valid filename or Sequence object'.format(**locals()))
+
+def _smith_waterman_over_file(query, filename, **kwargs):
+    alignments = []
+    try:
+        for sequence in type(query).sequences_from_fasta(filename):
+            alignments.append(_smith_waterman(query, sequence, **kwargs))
+    except:
+        for sequence in type(query).sequences_from_fastq(filename):
+            alignments.append(_smith_waterman(query, sequence, **kwargs))
+    return alignments
+
 def _smith_waterman(query, target, cnp.ndarray match_matrix, cnp.uint8_t gap_open_penalty=5, cnp.uint8_t gap_extend_penalty=2, cnp.uint16_t score_filter=0, cnp.uint32_t distance_filter=0, cnp.int8_t score_size=2, ):
     """
     Perform a Smith-Waterman alignment on two sequences.

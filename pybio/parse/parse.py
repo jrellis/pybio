@@ -5,6 +5,9 @@ import logging
 from collections import namedtuple
 from itertools import izip_longest
 from fnmatch import fnmatch
+import gzip
+import bz2
+import zipfile
 
 __all__ = ['Fasta', 'Fastq']
 logger = logging.getLogger(__name__)
@@ -14,6 +17,22 @@ def grouper(iterable, n, fillvalue=None):
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
     args = [iter(iterable)] * n
     return izip_longest(fillvalue=fillvalue, *args)
+
+magic_open_dict = {
+    '\x1f\x8b\x08': gzip.GzipFile,
+    '\x42\x5a\x68': bz2.BZ2File,
+    '\x50\x4b\x03\x04': zipfile.ZipFile,
+    }
+
+magic_open_dict_max_len = max(len(x) for x in magic_open_dict)
+
+def magic_open(filename, *args):
+    with open(filename) as f:
+        file_start = f.read(magic_open_dict_max_len)
+    for magic, open_method in magic_open_dict.items():
+        if file_start.startswith(magic):
+            return open_method(filename, *args)
+    return open(filename, *args)
 
 class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
     """
@@ -78,7 +97,7 @@ class Fasta(namedtuple('Fasta', ['identifier', 'description', 'sequence'])):
     @classmethod
     def _parse_iterator_no_description(cls, fasta_file):
         try:
-            with open(fasta_file, 'r') as fasta_entry:
+            with magic_open(fasta_file, 'r') as fasta_entry:
                 for fasta in cls._parse_iterator_from_entry(fasta_entry):
                     yield fasta
         except IOError:
@@ -180,7 +199,7 @@ class Fastq(namedtuple('Fastq', ['identifier', 'description', 'sequence', 'quali
             return only entries whose description line matches
         """
         try:
-            with open(fastq_file, 'r') as fastq:
+            with magic_open(fastq_file, 'r') as fastq:
                 if description:
                     for entry in grouper(fastq, 4):
                         if fnmatch(entry[0][1:], description):

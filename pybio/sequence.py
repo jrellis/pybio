@@ -323,7 +323,7 @@ class RnaSequence(Sequence):
                     'CGU':'R','CGC':'R','CGA':'R','CGG':'R',
                     'AGU':'S','AGC':'S','AGA':'R','AGG':'R',
                     'GGU':'G','GGC':'G','GGA':'G','GGG':'G'}
-    
+
     def __init__(self, sequence):
         """
         Parameters
@@ -331,6 +331,7 @@ class RnaSequence(Sequence):
         sequence : str or pybio Sequence
             the characters in the DNA Sequence, must be in the RNA alphabet
         """
+        self._translate_matrix = None
         super(RnaSequence, self).__init__(sequence, RnaSequence._rna_alphabet)
 
     def reverse_transcribe(self):
@@ -346,6 +347,26 @@ class RnaSequence(Sequence):
     def reverse_complement(self):
         """Returns the reverse complement of the sequence."""
         return self.complement()[::-1]
+
+    def _create_translate_matrix(self):
+        ds = len(self._rna_alphabet)
+        translate_matrix = np.full((ds,ds,ds), ProteinSequence._protein_alphabet.index('*'), dtype=int)
+        for key, value in self._translation.iteritems():
+            protein_index = -1 if value is 'Stop' else ProteinSequence._protein_alphabet.index(value)
+            translate_matrix[tuple(self._alphabet.index(char) for char in key)] = protein_index
+        return translate_matrix
+
+    # This is slower than the regular translate function
+    def _translate2(self):
+        offset = len(self._sequence) % 3
+        if offset % 3 != 0:
+            logger.warning('The length of this sequence is not a multiple of three...')
+
+        if not self._translate_matrix:
+            self._translate_matrix = self._create_translate_matrix()
+
+        codons = self._sequence[:-offset].reshape((-1,3))
+        return ProteinSequence._from_ndarray(self._translate_matrix[codons.T.tolist()], ProteinSequence._protein_alphabet)
 
     def translate(self):
         """Returns the translated protein sequence, up to the first stop codon"""
