@@ -26,7 +26,7 @@ def setup_package():
 
     metadata = dict(
             name='pybio',
-            version='0.127',
+            version='0.128',
             description='A bioinformatics sequence library',
             url='https://github.com/jrellis/pybio',
             author='Rob Ellis',
