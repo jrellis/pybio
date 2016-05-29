@@ -5,4 +5,3 @@ install: "pip install -r ci/requirements.txt"
 script: nosetests
 os:
     - linux
-    - osx
