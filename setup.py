@@ -36,7 +36,7 @@ def setup_package():
                 Extension('pybio.alignment.smith_waterman',sources=['pybio/alignment/smith_waterman.c', 'pybio/alignment/lib/ssw.c'],depends=['pybio/alignment/lib/ssw.h'])
                 ],
             cmdclass = {'cythonize':cythonize, 'cython_develop':cython_develop},
-            install_requires=['numpy', 'setuptools'],
+            install_requires=['numpy', 'requests', 'setuptools'],
             )
 
     setup(**metadata)
