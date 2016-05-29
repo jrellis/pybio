@@ -1,5 +1,7 @@
 # pybio
 
+[![Build Status](https://travis-ci.org/jrellis/pybio.svg?branch=master)](https://travis-ci.org/jrellis/pybio)
+
 A new bioinformatics library for python.
 
 To install from pip:
