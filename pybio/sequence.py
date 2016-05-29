@@ -410,7 +410,6 @@ def _convert_sequence(sequence, alphabet, conversion):
     #TODO: Documentation and Numba
     letter_to_index = {letter:index for index, letter in enumerate(alphabet)}
     index_list = np.array([letter_to_index[conversion[letter]] if letter in conversion else letter_to_index[letter] for letter in alphabet], dtype=np.int8)
-    #print(index_list)
     return index_list[sequence]
 
 def _convert_alphabet(alphabet, conversion):
