@@ -1,6 +1,7 @@
 # pybio
 
 [![Version](https://img.shields.io/pypi/v/pybio.svg)](https://pypi.python.org/pypi/pybio)
+[![Downloads](https://img.shields.io/pypi/dm/pybio.svg)](https://pypi.python.org/pypi/pybio)
 [![Build Status](https://travis-ci.org/jrellis/pybio.svg?branch=master)](https://travis-ci.org/jrellis/pybio)
 
 A new bioinformatics library for python.
