@@ -1,5 +1,6 @@
 from setuptools import setup, Extension, find_packages, Command
 from setuptools.command.develop import develop
+import numpy
 import os
 
 cython_globs = ['pybio/alignment/*.pyx']
@@ -33,10 +34,12 @@ def setup_package():
             author_email='jrellis@fas.harvard.edu',
             packages=['pybio', 'pybio.alignment'],
             ext_modules = [
-                Extension('pybio.alignment.smith_waterman',sources=['pybio/alignment/smith_waterman.c', 'pybio/alignment/lib/ssw.c'],depends=['pybio/alignment/lib/ssw.h'])
+                Extension('pybio.alignment.smith_waterman',sources=['pybio/alignment/smith_waterman.c', 'pybio/alignment/lib/ssw.c'],depends=['pybio/alignment/lib/ssw.h'], include_dirs=[numpy.get_include()])
                 ],
             cmdclass = {'cythonize':cythonize, 'cython_develop':cython_develop},
             install_requires=['numpy', 'requests', 'setuptools'],
+            setup_requires=['pytest-runner'],
+            tests_require=['pytest'],
             )
 
     setup(**metadata)
